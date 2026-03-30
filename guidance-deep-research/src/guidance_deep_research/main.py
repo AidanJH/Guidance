@@ -1,32 +1,33 @@
-from pocketflow import Flow, Node
+import json
 
+from pocketflow import Flow, Node
+from guidance_deep_research.utils import call_llm
 class ChatNode(Node):
     def prep(self, shared):
         if "messages" not in shared:
             shared["messages"] = []
-        user_input = input("\n Faahhhh")
+        user_input = input("You:")
         
         shared["messages"].append({"role":"user", "content":user_input})
-
-        print(shared["messages"])
 
         return shared["messages"]
     def exec(self, messages):
         if messages is None:
             return None
 
-        response = print(messages)
+        response = call_llm(messages)
         return response    
     def post (self, shared, prep_res, exec_res):
         if prep_res is None or exec_res is None:
-            print("\nSeeYA")
+            print("SeeYA")
             return None
 
-        print(f"\n Assistant: {exec_res}") 
-
+        # print(f"\n Assistant: {exec_res}") 
 
         shared["messages"].append({"role":"assistant", "content":exec_res})
 
+        formatted_json_string = json.dumps(shared["messages"], indent=4)
+        print(formatted_json_string)
         return "continue"
 
 chat_node = ChatNode()
@@ -38,3 +39,4 @@ if __name__ == "__main__":
     print("Welcome to the Chat Flow! Type 'exit' to quit.")
     shared = {}
     flow.run(shared)
+    
