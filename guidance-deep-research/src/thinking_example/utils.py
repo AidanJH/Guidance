@@ -5,23 +5,21 @@ import os
 
 def call_llm(messages):
     load_dotenv()
-
-    client = OpenAI(
-        base_url="http://192.168.50.50:5002/v1",
-    )
+    openai_key = os.getenv("OPENAI_KEY")
+    client = OpenAI(api_key=openai_key)
 
     response = client.chat.completions.create(
-        model="any-string-works-here", # Kobold just uses whatever GGUF is currently loaded
+        model="gpt-4.1-2025-04-14",
         messages=messages,
-        temperature=0.9,
+        temperature=1
     )
-    print(response)
+
     return response.choices[0].message.content
 
 
 if __name__ == "__main__":
     # Test the LLM call
-    messages = [{"role": "user", "content": "Write a C++ function that adds two numbers."}]
+    messages = [{"role": "user", "content": "In a few words, what's the meaning of life?"}]
     response = call_llm(messages)
     print(f"Prompt: {messages[0]['content']}")
     print(f"Response: {response}")
