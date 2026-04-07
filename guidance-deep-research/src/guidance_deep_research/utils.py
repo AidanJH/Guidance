@@ -8,6 +8,7 @@ def call_llm(messages):
 
     client = OpenAI(
         base_url="http://192.168.50.50:5002/v1",
+        api_key=os.getenv("OPENAI_API_KEY")
     )
 
     response = client.chat.completions.create(
