@@ -1,0 +1,19 @@
+import warnings
+
+from nodes import ChainOfThoughtNode
+from pocketflow import Flow
+
+
+def create_chain_of_thought_flow():
+    # Create a ChainOfThoughtNode
+    cot_node = ChainOfThoughtNode(max_retries=3, wait=10)
+
+    # Suppress the expected UserWarning from PocketFlow when flow terminates via the 'end' action with no registered successor
+    warnings.filterwarnings("ignore", category=UserWarning, module="pocketflow")
+
+    # Connect the node to itself for the "continue" action
+    cot_node - "continue" >> cot_node
+
+    # Create the flow
+    cot_flow = Flow(start=cot_node)
+    return cot_flow
