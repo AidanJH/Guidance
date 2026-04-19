@@ -1,7 +1,7 @@
 import json
 
 from pocketflow import Flow, Node
-from guidance_deep_research.utils import call_llm
+from wiki.pocketflow_tutorials.guidance_deep_research.utils import call_llm
 class ChainOfThoughtNode(Node):
     def prep(self, shared):
         if "problem_statement" not in shared:
