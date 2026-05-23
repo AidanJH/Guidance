@@ -1,7 +1,9 @@
 # Guidance — Brainstorming & Requirements
 
 ## Problem Statement
+
 Existing productivity tools (Motion, SkedPal, plain task lists) fail because they either:
+
 - Require excessive manual input and structuring (friction kills adoption)
 - Use context-blind algorithmic rules that don't account for the user's actual life
 - Treat AI as a bolt-on feature rather than a core architectural component
@@ -9,6 +11,7 @@ Existing productivity tools (Motion, SkedPal, plain task lists) fail because the
 Guidance is a personal life management system where the LLM is the first-class citizen — not the scheduler itself, but the reasoning and prioritization layer that understands the user's full context and drives a deterministic scheduling engine.
 
 ## Core Philosophy
+
 - **LLM as a "super powerful if statement"**: The LLM handles reasoning, prioritization, task decomposition, and context interpretation. It calls deterministic tools to actually place tasks, query data, and manage the calendar. It is not the end-to-end system.
 - **Minimize user friction**: The entire point is that the user should be able to give loose, natural language input and have the system do the heavy lifting of structuring, estimating, and scheduling.
 - **Show your work**: All inferred attributes (priority, duration, category, etc.) must be displayed to the user alongside a brief explanation of *why* that inference was made. This builds trust and lets the user catch mistakes early.
@@ -17,9 +20,11 @@ Guidance is a personal life management system where the LLM is the first-class c
 - **Local-first**: The system must be able to run on a user's local device with a small LLM. Start with a capable foundation model, then optimise down to smaller/fine-tuned models as the system matures and we understand what each component actually needs.
 
 ## MVP Scope
+
 The MVP proves one thing: **a user can input a task in natural language, have it decomposed into subtasks with inferred attributes, and have those subtasks scheduled into their existing calendar with LLM-driven prioritization.**
 
 ### MVP Features
+
 1. **Task intake**: User provides a loose natural language description of a task or goal
 2. **Task decomposition**: LLM breaks the input into atomic subtasks with inferred attributes
 3. **Clarifying questions**: LLM asks only what it cannot resolve from existing context — without overwhelming the user
@@ -28,6 +33,7 @@ The MVP proves one thing: **a user can input a task in natural language, have it
 6. **Simple UI**: Web and mobile interfaces focused on understanding the "feel" — how the app looks and how the interaction flows — more than functional completeness
 
 ### Explicitly NOT in MVP
+
 - Voice interface
 - Screen recording / activity tracking
 - Email/calendar integration with external providers
@@ -38,6 +44,7 @@ The MVP proves one thing: **a user can input a task in natural language, have it
 ## Architecture
 
 ### High-Level Design
+
 ```
 User Input (natural language)
         │
@@ -74,6 +81,7 @@ User Input (natural language)
 ```
 
 ### Agent Architecture
+
 - Built on **PocketFlow** — nodes and flows as the agent primitives
 - PocketFlow flows can be pipelines, loops, or branching — use whatever topology fits the problem
 - Sub-agents/nodes handle focused retrieval and summarization, feeding smaller context chunks up to the reasoning nodes
@@ -83,10 +91,12 @@ User Input (natural language)
 ### Data Model
 
 #### Dual-model approach
+
 1. **Structured store** (calendar, events, task records): Traditional DB or multi-dimensional structure. Holds the canonical task data — IDs, timestamps, durations, statuses, recurrence rules. Queryable programmatically by the scheduler and UI.
 2. **Knowledge graph** (LLM-accessible context): Tasks, goals, user preferences, relationships, and history represented as a graph that the LLM queries via natural language. A task exists in both the structured store (for the scheduler) and the graph (for the LLM).
 
 #### Technology: TBD
+
 - Start with the simplest viable option (could be as basic as SQLite + in-memory graph, or JSON files)
 - Abstract behind a data access interface so the backing technology can be swapped
 - Evaluate options (Neo4j, KùzuDB, custom adjacency structures, GraphRAG) against actual performance with the LLM
@@ -94,7 +104,9 @@ User Input (natural language)
 - Prompt serialization format (JSON, YAML, Markdown) should also be abstracted — if a fine-tuned model works better with .md, it should be trivial to switch
 
 #### Key principle
+
 The data structures exist to serve the LLM's context needs efficiently. Design the graph schema around the kinds of queries the LLM will make:
+
 - "Get me all tasks this week"
 - "Get me anything related to this subtask"
 - "Get me the user's preferences that are related to this task"
@@ -103,6 +115,7 @@ The data structures exist to serve the LLM's context needs efficiently. Design t
 ## Task Model
 
 ### Minimum attributes for the scheduler
+
 These are the attributes a task must have for the deterministic scheduler to function:
 
 - **ID**: Unique identifier
@@ -117,15 +130,19 @@ These are the attributes a task must have for the deterministic scheduler to fun
 - **Category/life domain** (inferred): Health, social, professional, personal, etc.
 
 ### Inference rules
+
 - **Must be inferred or asked**: Estimated duration — the scheduler literally cannot place a task without this
 - **Can typically be inferred**: Category/life domain, rough priority relative to existing tasks, goal relation
 - **Ask only when ambiguous**: Hard deadlines, dependencies on external events, duration when the task is too novel to estimate
 
 ### Display rule
+
 Every inferred attribute is shown to the user with a brief reason. Example:
+
 > **Priority: High** — You haven't meal-prepped in 2 weeks and your goal is to reduce takeout spending.
 
 ## Task Intake Flow
+
 1. User gives loose natural language input (e.g., "I want to eat healthy")
 2. Context retrieval sub-agents pull relevant data: existing schedule, related goals, user preferences, recent activity
 3. LLM decomposes the input into subtasks and infers attributes for each
@@ -135,6 +152,7 @@ Every inferred attribute is shown to the user with a brief reason. Example:
 7. Approved subtasks are passed to the deterministic scheduler for calendar placement
 
 ## Current Infrastructure
+
 - **LLM hosting**: kobold.cpp on personal server, currently running Gemma 4 (6GB VRAM)
 - **LLM framework**: PocketFlow (lightweight, close to API calls)
 - **Observability**: Langfuse (prompt versioning, tracing)
@@ -142,6 +160,7 @@ Every inferred attribute is shown to the user with a brief reason. Example:
 - **Architecture docs**: draw.io for C4 diagrams
 
 ## Open Questions
+
 1. **Knowledge graph technology**: What's the right embedded graph solution for local-first? Need to evaluate options against actual LLM query patterns.
 2. **Graph population strategy**: Single-pass during task decomposition, or a separate graph-building agent/service? Possibly a fine-tuned model specifically for embedding items in a knowledge graph.
 3. **Context retrieval architecture**: How many sub-agent layers? What's the right granularity for retrieval vs. summarization nodes?
@@ -152,6 +171,7 @@ Every inferred attribute is shown to the user with a brief reason. Example:
 8. **User profile/preference modeling**: How does the system learn and maintain user preferences over time? Explicit settings vs. inferred from behavior?
 
 ## Future Features (Post-MVP)
+
 These are validated ideas but explicitly out of scope for the MVP:
 
 - **Automatic deep research**: Expanding subtasks by researching unknowns until accurate time estimates can be made
