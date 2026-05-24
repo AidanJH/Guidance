@@ -11,7 +11,7 @@ class SubTask(BaseModel):
     id: int
     description: str
     status: StatusEnum
-    priority: PriorityEnum
+    priority: Optional[PriorityEnum] = None
     dependencies: list[int] = Field(default_factory=list)
     result: Optional[str] = None
     mark: Optional[str] = None

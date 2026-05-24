@@ -14,6 +14,7 @@ class StatusEnum(str, Enum):
     in_progress = "In Progress"
     done = "Done"
     cancelled = "Cancelled"
+    needs_info = "Further Information Needed"
 
 
 class PriorityEnum(str, Enum):

@@ -1,0 +1,7 @@
+prompts:
+  task_assign:
+    file: task_assign.jinja
+    version: 3
+    content_hash: 4e3447344b6d552d8c158fdbcc77802e928ec661936ecc0ebb87bb5ea6d4a40d
+    labels:
+    - production
