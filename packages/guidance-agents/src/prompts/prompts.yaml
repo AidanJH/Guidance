@@ -1,7 +1,12 @@
 prompts:
   task_decomposition:
-    file: task_decomposition.jinja
+    file: task_decomposition/task_decomposition.jinja
     version: 2
     content_hash: aacbb19d56e5b4be1fea7b59deb12a793d152bd646ced1c0a60dfc0ec010fcc2
+    labels:
+    - production
+  task_assign:
+    file: task_assign/task_assign.jinja
+    version: 1
     labels:
     - production
