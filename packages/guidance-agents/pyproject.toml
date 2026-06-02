@@ -23,7 +23,7 @@ dependencies = [
 
 [tool.poetry]
 package-mode = false
-packages = [{include = "guidance_deep_research", from = "src"}]
+packages = [{include = "guidance_agents", from = "src"}]
 
 
 [build-system]
