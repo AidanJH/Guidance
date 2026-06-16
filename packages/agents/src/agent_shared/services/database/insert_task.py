@@ -1,13 +1,11 @@
-"""Insert a sample task: poetry run python src/database/insert_task.py"""
+"""Insert a sample task: poetry run python -m agent_shared.services.database.insert_task"""
+
 import asyncio
-import sys
 from datetime import datetime
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+from shared_contracts import PriorityEnum, StatusEnum, Task
 
-from database import close_db, init_db
-from models.item import PriorityEnum, StatusEnum, Task
+from agent_shared.services.database import close_db, init_db
 
 
 async def main():

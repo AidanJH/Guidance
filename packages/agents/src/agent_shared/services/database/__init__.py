@@ -2,8 +2,7 @@ import os
 
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
-
-from models.item import Calendar, DeepResearchResult, Event, Goal, Task, TimeSlot
+from shared_contracts import Calendar, DeepResearchResult, Event, Goal, Task, TimeSlot
 
 _client: AsyncIOMotorClient | None = None
 

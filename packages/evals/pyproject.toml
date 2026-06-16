@@ -1,7 +1,7 @@
 [project]
-name = "guidance-api"
+name = "guidance-evals"
 version = "0.1.0"
-description = "Guidance backend API."
+description = "Evaluation and Langfuse harnesses for Guidance agents."
 authors = [
     {name = "Aidan",email = "aidanjh2012@gmail.com"}
 ]
@@ -16,7 +16,7 @@ package-mode = false
 
 [tool.poetry.dependencies]
 shared-contracts = {path = "../../shared", develop = true}
-guidance-agents = {path = "../../packages/agents", develop = true}
+guidance-agents = {path = "../agents", develop = true}
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

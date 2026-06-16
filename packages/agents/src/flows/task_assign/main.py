@@ -2,13 +2,11 @@ import asyncio
 import sys
 from pathlib import Path
 
+from agent_shared.services.database import close_db, init_db
 from dotenv import load_dotenv
+from flows.task_assign.flow import create_assign_flow
 
 load_dotenv(Path(__file__).parent / ".env")
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from flow import create_assign_flow
 
 USER_CONTEXT = (
     "Person is relatively unhealthy, overweight, mid-30s male. "
@@ -33,9 +31,13 @@ async def main():
         "context": USER_CONTEXT,
     }
 
-    await flow.run_async(shared)
+    await init_db()
+    try:
+        await flow.run_async(shared)
+    finally:
+        close_db()
 
-    print(f"\nDone. Task IDs saved to shared['persisted_task_ids']")
+    print("\nDone. Task IDs saved to shared['persisted_task_ids']")
 
 
 if __name__ == "__main__":

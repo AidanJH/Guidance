@@ -1,7 +1,8 @@
 import warnings
 
-from nodes import TaskDecompositionNode
 from pocketflow import Flow
+
+from flows.task_decomposition.nodes import TaskDecompositionNode
 
 
 def create_task_decomposition_flow():

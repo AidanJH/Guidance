@@ -1,7 +1,8 @@
 import warnings
 
-from nodes import PersistTasksNode, TaskAssignNode
 from pocketflow import AsyncFlow
+
+from flows.task_assign.nodes import PersistTasksNode, TaskAssignNode
 
 
 def create_assign_flow():

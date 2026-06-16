@@ -38,14 +38,13 @@ class Goal(Document):
 
 
 class Task(Document):
-    id: str = Field(default_factory=lambda: str(uuid4()))
-    display_text: str
-    description: str
-    status: StatusEnum
-    priority: PriorityEnum
+    display_text: Optional[str] = None
+    description: Optional[str] = None
+    status: Optional[StatusEnum] = None
+    priority: Optional[PriorityEnum] = None
     source_input: str
-    created_at: datetime
-    updated_at: datetime
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
     participants: list[str] = Field(default_factory=list)
     due_dates: list[date] = Field(default_factory=list)
     dependencies: list[str] = Field(default_factory=list)

@@ -1,13 +1,11 @@
-"""Quick smoke test — run with: poetry run python src/database/test_connection.py"""
+"""Quick smoke test — run with: poetry run python -m agent_shared.services.database.test_connection"""
+
 import asyncio
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from database import close_db, init_db
-from models.item import PriorityEnum, StatusEnum, Task
 from datetime import datetime
+
+from shared_contracts import PriorityEnum, StatusEnum, Task
+
+from agent_shared.services.database import close_db, init_db
 
 
 async def main():

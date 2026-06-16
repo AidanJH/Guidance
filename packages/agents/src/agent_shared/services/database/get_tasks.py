@@ -1,12 +1,10 @@
-"""Fetch and print all tasks: poetry run python src/database/get_tasks.py"""
+"""Fetch and print all tasks: poetry run python -m agent_shared.services.database.get_tasks"""
+
 import asyncio
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+from shared_contracts import Task
 
-from database import close_db, init_db
-from models.item import Task
+from agent_shared.services.database import close_db, init_db
 
 
 async def main():

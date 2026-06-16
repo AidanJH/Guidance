@@ -3,12 +3,14 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from flows.task_decomposition.flow import create_task_decomposition_flow
+
 load_dotenv(Path(__file__).parent / ".env")
 
-# Add the visualization module to path (sibling directory)
-sys.path.insert(0, str(Path(__file__).parent.parent / "pocketflow-visualization"))
-from flow import create_task_decomposition_flow
-from visualize import visualize_flow
+try:
+    from visualize import visualize_flow
+except ImportError:
+    visualize_flow = None
 
 
 def _try_init_canvas(question: str) -> dict:
@@ -50,12 +52,13 @@ def main():
     task_decomp_flow = create_task_decomposition_flow()
 
     # Visualize the flow graph and open it in the browser before running
-    viz_output_dir = str(Path(__file__).parent / "viz")
-    visualize_flow(
-        flow=task_decomp_flow,
-        flow_name="Task Decomposition",
-        output_dir=viz_output_dir,
-    )
+    if visualize_flow is not None:
+        viz_output_dir = str(Path(__file__).parent / "viz")
+        visualize_flow(
+            flow=task_decomp_flow,
+            flow_name="Task Decomposition",
+            output_dir=viz_output_dir,
+        )
 
     # Set up shared state
     shared = {

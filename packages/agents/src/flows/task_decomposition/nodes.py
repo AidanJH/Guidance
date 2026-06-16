@@ -1,7 +1,7 @@
 # cookbook/pocketflow-thinking/nodes.py
+from agent_shared.prompts import get_prompt
+from agent_shared.utils.llm_client import call_llm
 from pocketflow import Node
-from prompts import get_prompt
-from utils import call_llm
 
 
 # Helper function to format structured plan for printing
