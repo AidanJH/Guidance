@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from uuid import uuid4
 
 import yaml
@@ -82,17 +83,17 @@ class TaskAssignNode(AsyncNode):
             "context": shared.get("context", ""),
         }
 
-    async def exec_async(self, prep_res):
+    async def exec_async(self, prep_response):
         # Call the LLM to create a task object based on the examples provided
-        created_task = prep_res["created_task"]
-        context = prep_res["context"]
+        created_task = prep_response["created_task"]
+        context = prep_response["context"]
 
         prompt = f"""
         The block below is a Task yaml object that needs to be filled out.
         Have a look at the source_input field, and use that initial question along with the context to attempt to fill out any of the fields that say 'None'. 
-        If you do not have the available knowledge or context to make a decision on a field, just fill it out as 'None'.
-        You should return the entire Task object, including the existing filled out fields as a yaml string such that it can be parsed into a Pydantic object.
-        Do not print out any reasoning, only print out the Task object itself.
+        If you do not have the available knowledge or context to make a decision on a field, just fill it out as 'null'.
+        You should return the entire Task object, including the existing filled out fields as a json object.
+        Do not print out any reasoning, only print out the Task object itself. 
         Task: {created_task}
         Context: {context}
         """
@@ -102,28 +103,20 @@ class TaskAssignNode(AsyncNode):
 
         print("\n===== RAW LLM OUTPUT =====")
         print(response)
+
         print("===== END RAW LLM OUTPUT =====\n")
 
         return response
 
-    async def post_async(self, shared, prep_res, exec_res):
+    async def post_async(self, shared, prep_response, exec_response):
         try:
-            cleaned = (exec_res or "").strip()
-            if cleaned.startswith("```"):
-                lines = cleaned.splitlines()
-                lines = lines[1:] if lines and lines[0].startswith("```") else lines
-                if lines and lines[-1].strip() == "```":
-                    lines = lines[:-1]
-                cleaned = "\n".join(lines)
-            data = yaml.safe_load(cleaned)
-            shared["decomposition_result"] = data
-            shared["task_from_user"] = prep_res["task_from_user"]
+            data = Task.model_validate(exec_response)
             print(data)
+            print("DISPLAY: " + data.display_text)
             return "persist"
         except Exception as e:
             print(f"Failed to parse LLM output: {e}")
-            return "end"
-
+            return "retry"
 
 class PersistTasksNode(AsyncNode):
     async def prep_async(self, shared):
@@ -132,40 +125,17 @@ class PersistTasksNode(AsyncNode):
             "source_input": shared.get("task_from_user", ""),
         }
 
-    async def exec_async(self, prep_res):
-        result: TaskDecompositionResult = prep_res["result"]
-        source_input = prep_res["source_input"]
+    async def exec_async(self, prep_response):
+        result: TaskDecompositionResult = prep_response["result"]
+        source_input = prep_response["source_input"]
 
         if result is None:
             return []
 
         now = datetime.now()
-        id_map = {st.id: str(uuid4()) for st in result.subtasks}
 
         tasks = []
-        for subtask in result.subtasks:
-            task = Task(
-                id=id_map[subtask.id],
-                display_text=subtask.description[:80],
-                description=subtask.description,
-                status=subtask.status,
-                priority=subtask.priority or PriorityEnum.medium,
-                source_input=source_input,
-                created_at=now,
-                updated_at=now,
-                dependencies=[id_map[d] for d in subtask.dependencies if d in id_map],
-            )
-            tasks.append(task)
-
-        for task in tasks:
-            await task.insert()
-
         return tasks
 
-    async def post_async(self, shared, _prep_res, exec_res):
-        tasks = exec_res
-        print(f"\nPersisted {len(tasks)} task(s) to MongoDB:")
-        for task in tasks:
-            print(f"  [{task.id[:8]}...] {task.display_text}")
-        shared["persisted_task_ids"] = [t.id for t in tasks]
+    async def post_async(self, shared, _prep_response, exec_response):
         return "end"
