@@ -1,1 +1,0 @@
-Prompt files and configurations should be stored in this directory to allow easier access and management.
